@@ -19,7 +19,7 @@ var getMaxid = function() {
         }
     }
 
-    return max;
+    return ++max;
 };
 
 var search = function(id) {

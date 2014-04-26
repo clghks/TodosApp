@@ -8,11 +8,18 @@
     <div id="app">
 
     </div>
+
+    <input type="button" value="추가" onclick="addTodoItem()"/>
+
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
     <script>
         // todo 리스트 출력
+        var TodoItem = Backbone.Model.extend({
+            url:'/todos'
+        });
+
         var TodoList = Backbone.Collection.extend({
             url:'/todos'
         });
@@ -28,29 +35,50 @@
 
         var TodoListView = Backbone.View.extend({
             reander: function(){
+                this.remove();
                 this.collection.forEach(this.addOn, this);
             },
             addOn: function(todoItem){
                 var todoView = new TodoView({model:todoItem});
+                console.log(todoItem.get('description'));
                 this.$el.append(todoView.reander().el);
+            },
+            remove: function(){
+                this.$el.remove();
             }
+            /*
+            refresh: function(){
+                this.collection.fetch({
+                    success: reander
+                });
+            }
+            */
         });
 
         var todoList = new TodoList();
         var todoListView = new TodoListView({collection:todoList});
-        todoList.fetch({
-            success: function(){
+        getTodoItem();
 
-                todoListView.reander();
-                $("#app").html(todoListView.el);
+        function getTodoItem(){
+            todoListView.remove();
+            todoList.fetch({
+                success: function(){
+                    todoListView.remove();
+                    todoListView.reander();
+                    console.log(todoListView.el);
+                    $("#app").empty();
+                    $("#app").html(todoListView.el);
+                }
+            });
+        }
 
-                // TestLog
-                todoList.forEach(function(todoItem){
-                    console.log(todoItem.get('description'));
-                });
-            }
-        });
-
+        // todo 추가 삭제
+        // todo 추가
+        function addTodoItem(){
+            var todoItem = new TodoItem({description: 'Test7', status: 'incomplete'});
+            todoItem.save();
+            getTodoItem();
+        }
     </script>
 </body>
 </html>
