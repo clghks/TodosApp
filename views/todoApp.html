@@ -40,11 +40,10 @@
             },
             addOn: function(todoItem){
                 var todoView = new TodoView({model:todoItem});
-                console.log(todoItem.get('description'));
                 this.$el.append(todoView.reander().el);
             },
             remove: function(){
-                this.$el.remove();
+                this.$el.html('');
             }
             /*
             refresh: function(){
@@ -60,13 +59,11 @@
         getTodoItem();
 
         function getTodoItem(){
-            todoListView.remove();
+            todoList.reset();
             todoList.fetch({
                 success: function(){
                     todoListView.remove();
                     todoListView.reander();
-                    console.log(todoListView.el);
-                    $("#app").empty();
                     $("#app").html(todoListView.el);
                 }
             });
