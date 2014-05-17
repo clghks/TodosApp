@@ -3,15 +3,25 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
+    <link rel="stylesheet" href="./stylesheets/style.css"/>
 </head>
 <body>
-    <div id="app">
+    <div id="todoapp">
+        <header>
+            <h1>Todo List</h1>
+            <form id="new-from" onsubmit="return addTodoItem()">
+                <input id="new-todo" type="text" placeholder="What needs to be done?" autocomplete="off"/>
+            </form>
+        </header>
 
+        <ul id="todo-list">
+
+        </ul>
+
+        <footer style="display: block;">
+            <div id="todo-count" class="todo-count">aaa</div>
+        </footer>
     </div>
-
-    <input type="button" value="추가" onclick="addTodoItem()"/>
-    <input type="button" value="삭제" onclick="remvoeTodoItem()"/>
-
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js"></script>
@@ -26,11 +36,22 @@
         });
 
         var TodoView = Backbone.View.extend({
-            template: _.template('<input type=checkbox /><%= description %>'),
+            tagName: 'li',
+            template: _.template('<div class="view"> <input class="toggle" type="checkbox"> <label><%= description %></label> <a class="destroy"></a></div>'),
             reander: function(){
                 var attributes = this.model.toJSON();
                 $(this.el).html(this.template(attributes));
                 return this;
+            },
+            events:{
+                "click a" : "destroyTodo"
+            },
+            destroyTodo: function(e){
+                this.model.destroy();
+                this.remove();
+            },
+            remove: function(){
+                this.$el.remove();
             }
         })
 
@@ -49,16 +70,8 @@
                 this.collection.forEach(this.addOn, this);
             },
             remove: function(){
-//                this.$el[0].remove();
                 this.$el.html('');
             }
-            /*
-            refresh: function(){
-                this.collection.fetch({
-                    success: reander
-                });
-            }
-            */
         });
 
         var todoList = new TodoList();
@@ -70,28 +83,23 @@
                 success: function(){
                     todoListView.remove();
                     todoListView.reander();
-                    $("#app").html(todoListView.el);
+                    $("#todo-list").html(todoListView.el);
+                    $("#todo-count").text(todoList.length + " items left");
                 }
             });
         }
 
-        // todo 추가 삭제
         // todo 추가
         function addTodoItem(){
-            var todoItem = new TodoItem({description: 'Test7', status: 'incomplete'});
+            var todoText = $('#new-todo');
+
+            var todoItem = new TodoItem({description: todoText.val(), status: 'incomplete'});
             todoItem.save();
             getTodoItem();
+
+            todoText.val('');
+            return false;
         }
-
-        // todo 삭제
-        function remvoeTodoItem(){
-            var todoItem = todoList.unshift();
-            todoItem.destroy();
-            getTodoItem();
-        }
-
-
-
     </script>
 </body>
 </html>
