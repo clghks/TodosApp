@@ -10,6 +10,7 @@
     </div>
 
     <input type="button" value="추가" onclick="addTodoItem()"/>
+    <input type="button" value="삭제" onclick="remvoeTodoItem()"/>
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
@@ -34,15 +35,21 @@
         })
 
         var TodoListView = Backbone.View.extend({
+            initialize: function(){
+              this.collection.on('reset', this.addAll(), this);
+            },
             reander: function(){
-                this.remove();
-                this.collection.forEach(this.addOn, this);
+                this.addAll();
             },
             addOn: function(todoItem){
                 var todoView = new TodoView({model:todoItem});
                 this.$el.append(todoView.reander().el);
             },
+            addAll: function(){
+                this.collection.forEach(this.addOn, this);
+            },
             remove: function(){
+//                this.$el[0].remove();
                 this.$el.html('');
             }
             /*
@@ -59,7 +66,6 @@
         getTodoItem();
 
         function getTodoItem(){
-            todoList.reset();
             todoList.fetch({
                 success: function(){
                     todoListView.remove();
@@ -76,6 +82,16 @@
             todoItem.save();
             getTodoItem();
         }
+
+        // todo 삭제
+        function remvoeTodoItem(){
+            var todoItem = todoList.unshift();
+            todoItem.destroy();
+            getTodoItem();
+        }
+
+
+
     </script>
 </body>
 </html>
