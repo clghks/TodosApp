@@ -9,7 +9,7 @@
     <div id="todoapp">
         <header>
             <h1>Todo List</h1>
-            <form id="new-from" onsubmit="return addTodoItem()">
+            <form id="new-from" onsubmit="return addTodoItem(event)">
                 <input id="new-todo" type="text" placeholder="What needs to be done?" autocomplete="off"/>
             </form>
         </header>
@@ -38,6 +38,9 @@
         var TodoView = Backbone.View.extend({
             tagName: 'li',
             template: _.template('<div class="view"> <input class="toggle" type="checkbox"> <label><%= description %></label> <a class="destroy"></a></div>'),
+            initialize: function(){
+                this.model.on('remove', this.remove, this);
+            },
             reander: function(){
                 var attributes = this.model.toJSON();
                 $(this.el).html(this.template(attributes));
@@ -48,16 +51,17 @@
             },
             destroyTodo: function(e){
                 this.model.destroy();
-                this.remove();
             },
             remove: function(){
                 this.$el.remove();
+                $("#todo-count").text(todoList.length + " items");
             }
         })
 
         var TodoListView = Backbone.View.extend({
             initialize: function(){
-              this.collection.on('reset', this.addAll(), this);
+                this.collection.on('reset', this.addAll, this);
+                this.collection.on('add', this.addOn, this);
             },
             reander: function(){
                 this.addAll();
@@ -69,33 +73,29 @@
             addAll: function(){
                 this.collection.forEach(this.addOn, this);
             },
-            remove: function(){
-                this.$el.html('');
+            create: function(todoText){
+                this.collection.create({description: todoText, status: 'incomplete'}, {wait:true});
             }
         });
 
         var todoList = new TodoList();
-        var todoListView = new TodoListView({collection:todoList});
+        var todoListView = new TodoListView({collection:todoList, el:'#todo-list'});
         getTodoItem();
 
         function getTodoItem(){
             todoList.fetch({
                 success: function(){
-                    todoListView.remove();
-                    todoListView.reander();
-                    $("#todo-list").html(todoListView.el);
+//                    $("#todo-list").html(todoListView.el);
                     $("#todo-count").text(todoList.length + " items left");
                 }
             });
         }
 
         // todo 추가
-        function addTodoItem(){
+        function addTodoItem(event){
+            event.preventDefault();
             var todoText = $('#new-todo');
-
-            var todoItem = new TodoItem({description: todoText.val(), status: 'incomplete'});
-            todoItem.save();
-            getTodoItem();
+            todoListView.create(todoText.val());
 
             todoText.val('');
             return false;

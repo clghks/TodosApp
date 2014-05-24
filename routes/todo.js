@@ -23,17 +23,19 @@ var getMaxid = function() {
 };
 
 var search = function(id) {
-    var todo = {}, todosCount = todos.length;
+    var todo = {}, todosCount = 0, l = todos.length;
 
-    while(todosCount--) {
+
+    for(;todosCount < l; todosCount++)
+    //while(todosCount--) {
         if (todos[todosCount].id == id) {
             todo = todos[todosCount];
             break;
         }
-    }
+    //}
 
     return {
-        index : todosCount,
+        index : todosCount == l ? -1 : todosCount,
         todo : todo
     };
 };
@@ -44,7 +46,7 @@ exports.insert = function(req, res) {
     todo.id = getMaxid();
     todos.push(todo);
     console.log(todos);
-    res.send("insert OK");
+    res.send(todo);
 };
 
 exports.update = function(req, res) {
@@ -57,7 +59,7 @@ exports.update = function(req, res) {
 
 exports.delete = function(req, res) {
 
-    var todo = search(req.param("id")), todoIndex = todo.index || -1;
+    var todo = search(req.param("id")), todoIndex = todo.index;
 
     if (!(todo.index === -1)) {
         todos.splice(todoIndex, 1);
