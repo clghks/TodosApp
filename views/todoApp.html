@@ -40,6 +40,7 @@
             template: _.template('<div class="view"> <input class="toggle" type="checkbox"> <label><%= description %></label> <a class="destroy"></a></div>'),
             initialize: function(){
                 this.model.on('remove', this.remove, this);
+                this.model.on('change', this.reander, this);
             },
             reander: function(){
                 var attributes = this.model.toJSON();
@@ -47,14 +48,22 @@
                 return this;
             },
             events:{
-                "click a" : "destroyTodo"
+                "click a" : "destroyTodo",
+                "click label" : "update"
             },
             destroyTodo: function(e){
                 this.model.destroy();
             },
+            labelClick: function(e){
+                this.$el.html('<li class="done"> <input class="toggle" type="checkbox"> <label>dddd</label> <a class="destroy"></a></li>');
+            },
             remove: function(){
                 this.$el.remove();
                 $("#todo-count").text(todoList.length + " items");
+            },
+            update: function(){
+                this.model.set({description: 'update'});
+                this.model.save();
             }
         })
 
@@ -85,7 +94,6 @@
         function getTodoItem(){
             todoList.fetch({
                 success: function(){
-//                    $("#todo-list").html(todoListView.el);
                     $("#todo-count").text(todoList.length + " items left");
                 }
             });
